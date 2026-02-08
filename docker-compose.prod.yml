@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: recnexteval_db
+    networks:
+      - recnexteval-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./recnexteval-studio-backend
+      additional_contexts:
+        recnexteval: ../recnexteval
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./recnexteval-studio-backend/src:/src/src
+    env_file: .env
+    environment:
+      PYTHONUNBUFFERED: 1
+      DATABASE_URL: postgresql+psycopg://postgres:password@postgres:5432/recnexteval_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - recnexteval-network
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./recnexteval-studio-backend/src
+          target: /src/src
+          ignore:
+            - __pycache__
+            - .pytest_cache
+            - .venv
+            - .egg-info
+            - dist
+
+  frontend:
+    build:
+      context: ./recnexteval-studio-frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+    volumes:
+      - ./recnexteval-studio-frontend:/app
+      - /app/node_modules
+    env_file: .env
+    depends_on:
+      - backend
+    networks:
+      - recnexteval-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  recnexteval-network:
+    driver: bridge

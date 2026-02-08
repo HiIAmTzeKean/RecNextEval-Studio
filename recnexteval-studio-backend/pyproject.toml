@@ -1,0 +1,39 @@
+[project]
+name = "recnexteval-studio-backend"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.21.0",
+    "alembic>=1.17.1",
+    "authlib>=1.6.5",
+    "bcrypt==4.3.0",
+    "fastapi[standard]>=0.123.4",
+    "itsdangerous>=2.2.0",
+    "passlib[bcrypt]>=1.7.0",
+    "psycopg[binary]>=3.3.2",
+    "pyarrow>=20.0.0",
+    "PyJWT>=2.8.0",
+    "sqlalchemy>=2.0.41",
+    "sqlalchemy-stubs>=0.4",
+    "starlette>=0.46.2",
+    "recnexteval",
+    "uvicorn[standard]>=0.35.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.9,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "recnexteval_studio_backend"
+
+[tool.uv.sources]
+recnexteval = { path = "recnexteval" }
+
+[tool.uv]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "sys_platform == 'darwin'",
+]
