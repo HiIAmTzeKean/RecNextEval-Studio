@@ -44,6 +44,8 @@ services:
     build:
       context: ./recnexteval-studio-frontend
       dockerfile: Dockerfile.prod
+      args:
+        VITE_BACKEND_BASE_URL: ${VITE_BACKEND_BASE_URL}
     ports:
       - "80:80"
     volumes:
