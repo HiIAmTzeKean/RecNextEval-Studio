@@ -39,17 +39,6 @@ services:
     restart: unless-stopped
     networks:
       - recnexteval-network
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./recnexteval-studio-backend/src
-          target: /src/src
-          ignore:
-            - __pycache__
-            - .pytest_cache
-            - .venv
-            - .egg-info
-            - dist
 
   frontend:
     build:
