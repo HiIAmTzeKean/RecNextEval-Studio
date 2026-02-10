@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 80,
+      allowedHosts: ['recnexteval-studio.asuscomm.com'],
       watch: {
         usePolling: true,
       }
