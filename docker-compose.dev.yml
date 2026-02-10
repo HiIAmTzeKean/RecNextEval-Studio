@@ -60,7 +60,6 @@ services:
     volumes:
       - ./recnexteval-studio-frontend:/app
       - /app/node_modules
-    env_file: .env
     depends_on:
       - backend
     networks:
