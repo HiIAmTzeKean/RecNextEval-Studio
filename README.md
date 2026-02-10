@@ -2,7 +2,7 @@
 
 A web-based studio for evaluating and analyzing streaming recommendation algorithms.
 
-![landing_page](/static/landing_page.png)
+![landing_page](/static/LandingPage.png)
 
 ## Installation
 
