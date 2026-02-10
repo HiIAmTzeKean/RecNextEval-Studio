@@ -1,4 +1,4 @@
-# recnexteval studio
+# RecNextEval Studio
 
 A web-based studio for evaluating and analyzing streaming recommendation algorithms.
 
