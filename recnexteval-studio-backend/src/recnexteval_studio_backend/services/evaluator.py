@@ -190,9 +190,9 @@ def run_evaluation(stream_job_id: int) -> None:
         try:
             logger.info("Setting up sliding window...")
             # Convert datetime to epoch timestamp
-            background_t_epoch = stream_job.timestamp_split_start.timestamp()
+            training_t_epoch = stream_job.timestamp_split_start.timestamp()
             setting_window = recnexteval.settings.SlidingWindowSetting(
-                background_t=background_t_epoch,
+                training_t=training_t_epoch,
                 window_size=stream_job.window_size,
                 top_K=stream_job.top_k,
             )
@@ -207,7 +207,7 @@ def run_evaluation(stream_job_id: int) -> None:
             logger.info("Building evaluator pipeline...")
             builder = recnexteval.evaluators.EvaluatorPipelineBuilder()
             builder.add_setting(setting_window)
-            builder.set_metric_K(stream_job.top_k)
+            builder.set_metric_k(stream_job.top_k)
 
             for metric_name in stream_job.metrics:
                 logger.info(f"Adding metric: {metric_name}")
@@ -253,4 +253,3 @@ def run_evaluation(stream_job_id: int) -> None:
         db.commit()
     finally:
         db.close()
-
