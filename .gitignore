@@ -231,3 +231,4 @@ logging_config.yaml
 
 recnexteval-studio-backend/recnexteval
 recnexteval-studio-backend/data/**
+!recnexteval-studio-frontend/src/**
