@@ -30,7 +30,7 @@ build-backend = "uv_build"
 module-name = "recnexteval_studio_backend"
 
 [tool.uv.sources]
-recnexteval = { path = "recnexteval" }
+recnexteval = { git = "https://github.com/HiIAmTzeKean/RecNextEval" }
 
 [tool.uv]
 required-environments = [
