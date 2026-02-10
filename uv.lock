@@ -1445,8 +1445,8 @@ wheels = [
 
 [[package]]
 name = "recnexteval"
-version = "0.2.0"
-source = { directory = "recnexteval-studio-backend/recnexteval" }
+version = "1.0.0"
+source = { git = "https://github.com/HiIAmTzeKean/RecNextEval?rev=master#470ae55f8ebc90829729c2821bc5f1f164104dda" }
 dependencies = [
     { name = "colorama" },
     { name = "colorlog" },
@@ -1466,55 +1466,6 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
     { name = "urllib3" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "colorama", specifier = ">=0.4.6" },
-    { name = "colorlog", specifier = ">=6.10.1" },
-    { name = "deprecation", specifier = ">=2.1.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "numpy", specifier = "==2.2.6" },
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "progressbar", specifier = ">=2.5" },
-    { name = "pyarrow", specifier = ">=22.0.0" },
-    { name = "pyfiglet", specifier = ">=1.0.4" },
-    { name = "scikit-learn", specifier = ">=1.7.2" },
-    { name = "scipy", specifier = ">=1.16.3" },
-    { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "simplejson", specifier = ">=3.20.2" },
-    { name = "tqdm", specifier = ">=4.67.1" },
-    { name = "typing-extensions", specifier = ">=4.15.0" },
-    { name = "urllib3", specifier = ">=2.5.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "ipywidgets", specifier = ">=8.1.8" },
-    { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-bibtex", specifier = ">=4.4.0" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.0" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.2" },
-    { name = "mkdocs-material", specifier = ">=9.7.0" },
-    { name = "mkdocs-minify-plugin", specifier = ">=0.8.0" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.10" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
-    { name = "pytest", specifier = ">=9.0.1" },
-    { name = "ruff", specifier = ">=0.14.7" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-bibtex", specifier = ">=4.4.0" },
-    { name = "mkdocs-gen-files", specifier = ">=0.6.0" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.2" },
-    { name = "mkdocs-material", specifier = ">=9.7.0" },
-    { name = "mkdocs-minify-plugin", specifier = ">=0.8.0" },
-    { name = "mkdocs-section-index", specifier = ">=0.3.10" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
-    { name = "ruff", specifier = ">=0.14.7" },
 ]
 
 [[package]]
@@ -1562,7 +1513,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.2" },
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "pyjwt", specifier = ">=2.8.0" },
-    { name = "recnexteval", directory = "recnexteval-studio-backend/recnexteval" },
+    { name = "recnexteval", git = "https://github.com/HiIAmTzeKean/RecNextEval?rev=master" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
     { name = "sqlalchemy-stubs", specifier = ">=0.4" },
     { name = "starlette", specifier = ">=0.46.2" },
