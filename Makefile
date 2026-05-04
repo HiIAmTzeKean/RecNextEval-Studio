@@ -20,7 +20,10 @@ help:
 	@echo "  make down              -> stop and remove services"
 
 up:
-	$(DC) up --build
+    $(DC) up
+
+rebuild:
+    $(DC) up --build
 
 up-dev:
 	$(MAKE) up ENV=dev
