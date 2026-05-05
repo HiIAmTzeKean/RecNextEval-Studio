@@ -29,8 +29,29 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "recnexteval_studio_backend"
 
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "pytest-mock>=3.14",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["recnexteval_studio_backend.services.evaluation"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
 [tool.uv.sources]
-recnexteval = { git = "https://github.com/HiIAmTzeKean/RecNextEval", rev="v1.0.1"}
+recnexteval = { git = "https://github.com/HiIAmTzeKean/RecNextEval", rev="master"}
 
 [tool.uv]
 required-environments = [
