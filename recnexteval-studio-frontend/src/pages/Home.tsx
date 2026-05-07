@@ -79,7 +79,7 @@ export default function Home() {
             View on GitHub
           </a>
           <a
-            href="https://hiiamtzekean.github.io/recnexteval/"
+            href="https://hiiamtzekean.github.io/RecNextEval/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-2 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition"
