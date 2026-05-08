@@ -25,13 +25,11 @@ const Algo: React.FC = () => {
   const [loading, setLoading] = useState(false)
 
   const handleAlgorithmToggle = async (algorithmId: string) => {
-    const isSelected = selectedAlgorithms.some(algo => algo.name === algorithmId)
-    if (!isSelected) {
-      // Add, fetch params
-      const params = await fetchAlgorithmParams(algorithmId)
-      setSelectedAlgorithms(prev => [...prev, { name: algorithmId, params, id: undefined }])
-    }
-    // Deselection is intentionally disabled — use the X button on the parameter card to remove
+    const params = await fetchAlgorithmParams(algorithmId)
+    setSelectedAlgorithms(prev => [
+      ...prev,
+      { name: algorithmId, params, id: undefined, clientKey: crypto.randomUUID() },
+    ])
   }
 
   const handleRemoveAlgorithm = (index: number) => {

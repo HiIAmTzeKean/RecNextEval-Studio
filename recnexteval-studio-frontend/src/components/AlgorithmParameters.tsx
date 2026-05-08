@@ -16,7 +16,7 @@ const AlgorithmParameters: React.FC<AlgorithmParametersProps> = ({
     <h2 className="text-xl font-semibold mb-4">Configure Algorithm Parameters</h2>
     <div className="space-y-4">
       {selectedAlgorithms.map((selectedAlgo, index) => (
-        <div key={selectedAlgo.name} className="p-4 bg-white dark:bg-slate-800 rounded border relative">
+        <div key={selectedAlgo.clientKey} className="p-4 bg-white dark:bg-slate-800 rounded border relative">
           <button
             type="button"
             onClick={() => onRemove(index)}

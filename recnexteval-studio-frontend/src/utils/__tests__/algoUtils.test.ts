@@ -38,8 +38,9 @@ describe('fetchAlgorithmParams', () => {
 describe('updateAlgorithmsForStream', () => {
   const streamJobId = 42
 
+  // AlgoA (id=1) is kept; AlgoB (id=2) is removed
   const selected: SelectedAlgorithm[] = [
-    { name: 'AlgoA', params: { k: 5 } },
+    { id: 1, name: 'AlgoA', params: { k: 5 }, clientKey: 'ck-1' },
   ]
 
   const original: Algorithm[] = [
@@ -47,7 +48,7 @@ describe('updateAlgorithmsForStream', () => {
     { id: 2, name: 'AlgoB', description: 'removed' },
   ]
 
-  it('deletes algorithms that are no longer selected', async () => {
+  it('deletes algorithms whose id is no longer in the selected list', async () => {
     mockApiFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ stream_job_id: streamJobId }),
@@ -61,7 +62,7 @@ describe('updateAlgorithmsForStream', () => {
     )
   })
 
-  it('does not delete algorithms that are still selected', async () => {
+  it('does not delete algorithms whose id is still in the selected list', async () => {
     mockApiFetch.mockResolvedValue({
       ok: true,
       json: async () => ({}),
@@ -74,7 +75,27 @@ describe('updateAlgorithmsForStream', () => {
     expect(deleteCalls[0][0]).not.toContain('/remove_algorithm/1')
   })
 
-  it('posts all selected algorithms', async () => {
+  it('deletes by id when two originals share the same algorithm name', async () => {
+    const duplicateOriginals: Algorithm[] = [
+      { id: 10, name: 'TopK', description: 'k=5' },
+      { id: 11, name: 'TopK', description: 'k=10' },
+    ]
+    const keepOne: SelectedAlgorithm[] = [
+      { id: 10, name: 'TopK', params: { k: 5 }, clientKey: 'ck-10' },
+    ]
+    mockApiFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({}),
+    } as Response)
+
+    await updateAlgorithmsForStream(streamJobId, keepOne, duplicateOriginals)
+
+    const deleteCalls = mockApiFetch.mock.calls.filter(([, opts]) => opts?.method === 'DELETE')
+    expect(deleteCalls).toHaveLength(1)
+    expect(deleteCalls[0][0]).toContain('/remove_algorithm/11')
+  })
+
+  it('posts selected algorithms without clientKey in the body', async () => {
     mockApiFetch.mockResolvedValue({
       ok: true,
       json: async () => ({}),
@@ -82,13 +103,13 @@ describe('updateAlgorithmsForStream', () => {
 
     await updateAlgorithmsForStream(streamJobId, selected, original)
 
-    expect(mockApiFetch).toHaveBeenCalledWith(
-      `/api/v1/stream/${streamJobId}/add_algorithms`,
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ algorithms: selected }),
-      })
+    const postCall = mockApiFetch.mock.calls.find(([url, opts]) =>
+      (url as string).includes('add_algorithms') && (opts as RequestInit)?.method === 'POST'
     )
+    expect(postCall).toBeDefined()
+    const body = JSON.parse((postCall![1] as RequestInit).body as string)
+    expect(body.algorithms[0]).not.toHaveProperty('clientKey')
+    expect(body.algorithms[0]).toMatchObject({ id: 1, name: 'AlgoA', params: { k: 5 } })
   })
 
   it('throws when the add-algorithms request fails', async () => {

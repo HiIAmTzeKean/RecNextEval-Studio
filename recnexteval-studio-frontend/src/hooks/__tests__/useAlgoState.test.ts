@@ -49,6 +49,7 @@ describe('useAlgoState', () => {
     expect(result.current.selectedAlgorithms).toHaveLength(1)
     expect(result.current.selectedAlgorithms[0]).toEqual({
       id: 10,
+      clientKey: '10',
       name: 'AlgoA',
       params: { k: 3 },
     })

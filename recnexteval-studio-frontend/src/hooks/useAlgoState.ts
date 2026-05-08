@@ -15,6 +15,7 @@ export const useAlgoState = (streamJobs: StreamJob[]) => {
         // Parse the saved parameters for existing algorithms
         setSelectedAlgorithms(stream.algorithms.map(algo => ({
           id: algo.id,
+          clientKey: String(algo.id),
           name: algo.name,
           params: algo.params ? JSON.parse(algo.params) : {}
         })))
