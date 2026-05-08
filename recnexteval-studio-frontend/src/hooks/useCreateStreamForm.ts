@@ -125,7 +125,9 @@ export const useCreateStreamForm = () => {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create stream')
+        const errorData = await response.json().catch(() => null)
+        const detail = errorData?.detail ?? 'Failed to create stream'
+        throw new Error(detail)
       }
 
       const result = await response.json()

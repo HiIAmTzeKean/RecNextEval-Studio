@@ -42,6 +42,14 @@ def create_stream_router() -> APIRouter:
         except ValueError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid timestamp format")
 
+        # Check for duplicate job name
+        existing_job = db.query(StreamJob).filter(StreamJob.name == request.name).first()
+        if existing_job:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"A stream job with the name '{request.name}' already exists. Please choose a different name.",
+            )
+
         # Create stream job
         stream_job = StreamJob(
             name=request.name,
