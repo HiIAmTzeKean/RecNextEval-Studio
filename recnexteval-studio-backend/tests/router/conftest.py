@@ -14,8 +14,12 @@ from fastapi.testclient import TestClient
 
 from recnexteval_studio_backend.db.connection import get_db
 from recnexteval_studio_backend.db.schema import StreamAlgorithm, StreamJob, StreamUser
+from recnexteval_studio_backend.router.algorithm_router import create_algorithm_router
+from recnexteval_studio_backend.router.auth_google_router import create_auth_google_router
 from recnexteval_studio_backend.router.auth_router import create_auth_router
+from recnexteval_studio_backend.router.dataset_router import create_dataset_router
 from recnexteval_studio_backend.router.evaluator_router import create_evaluator_router
+from recnexteval_studio_backend.router.metric_router import create_metric_router
 from recnexteval_studio_backend.router.stream_router import create_stream_router
 from recnexteval_studio_backend.services.auth import get_current_username, hash_password
 
@@ -30,11 +34,15 @@ _TEST_PASSWORD = "testpass123"
 
 @pytest.fixture(scope="session")
 def test_app() -> FastAPI:
-    """Minimal FastAPI app that includes the three main routers under test."""
+    """Minimal FastAPI app that includes all routers under test."""
     app = FastAPI()
     app.include_router(create_auth_router(), prefix=_API_PREFIX)
     app.include_router(create_stream_router(), prefix=_API_PREFIX)
     app.include_router(create_evaluator_router(), prefix=_API_PREFIX)
+    app.include_router(create_algorithm_router(), prefix=_API_PREFIX)
+    app.include_router(create_dataset_router(), prefix=_API_PREFIX)
+    app.include_router(create_metric_router(), prefix=_API_PREFIX)
+    app.include_router(create_auth_google_router(), prefix=_API_PREFIX)
     return app
 
 
@@ -79,6 +87,30 @@ def client(test_app, session_factory, router_user) -> TestClient:
     test_app.dependency_overrides[get_current_username] = lambda: router_user["username"]
 
     with TestClient(test_app, raise_server_exceptions=True) as c:
+        yield c
+
+    test_app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client_no_raise(test_app, session_factory, router_user) -> TestClient:
+    """Like `client` but with raise_server_exceptions=False.
+
+    Use only in tests that assert on 5xx responses so that server errors are
+    returned as HTTP responses rather than propagated as Python exceptions.
+    """
+
+    def _get_db_override():
+        sess = session_factory()
+        try:
+            yield sess
+        finally:
+            sess.close()
+
+    test_app.dependency_overrides[get_db] = _get_db_override
+    test_app.dependency_overrides[get_current_username] = lambda: router_user["username"]
+
+    with TestClient(test_app, raise_server_exceptions=False) as c:
         yield c
 
     test_app.dependency_overrides.clear()
