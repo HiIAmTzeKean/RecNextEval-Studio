@@ -202,15 +202,22 @@ def create_stream_router() -> APIRouter:
                     detail=f"Algorithm {algo.name} not found in recnexteval registry",
                 )
 
-        # Create StreamAlgorithm entries
+        # Upsert StreamAlgorithm entries
         for algo in request.algorithms:
-            stream_algorithm = StreamAlgorithm(
-                stream_job_id=stream_job_id,
-                algorithm_name=algo.name,
-                parameters=json.dumps(algo.params),
-                algorithm_uuid=recnexteval.utils.generate_algorithm_uuid(algo.name),
-            )
-            db.add(stream_algorithm)
+            existing = db.query(StreamAlgorithm).filter(
+                StreamAlgorithm.stream_job_id == stream_job_id,
+                StreamAlgorithm.algorithm_name == algo.name,
+            ).first()
+            if existing:
+                existing.parameters = json.dumps(algo.params)
+            else:
+                stream_algorithm = StreamAlgorithm(
+                    stream_job_id=stream_job_id,
+                    algorithm_name=algo.name,
+                    parameters=json.dumps(algo.params),
+                    algorithm_uuid=recnexteval.utils.generate_algorithm_uuid(algo.name),
+                )
+                db.add(stream_algorithm)
 
         db.commit()
 

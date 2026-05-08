@@ -4,17 +4,27 @@ import { SelectedAlgorithm } from '../types/algoTypes'
 interface AlgorithmParametersProps {
   selectedAlgorithms: SelectedAlgorithm[]
   onParamChange: (index: number, key: string, value: any) => void
+  onRemove: (index: number) => void
 }
 
 const AlgorithmParameters: React.FC<AlgorithmParametersProps> = ({
   selectedAlgorithms,
-  onParamChange
+  onParamChange,
+  onRemove
 }) => (
   <div className="mt-8 p-6 bg-green-50 dark:bg-green-900/20 rounded-md shadow">
     <h2 className="text-xl font-semibold mb-4">Configure Algorithm Parameters</h2>
     <div className="space-y-4">
       {selectedAlgorithms.map((selectedAlgo, index) => (
-        <div key={selectedAlgo.name} className="p-4 bg-white dark:bg-slate-800 rounded border">
+        <div key={selectedAlgo.name} className="p-4 bg-white dark:bg-slate-800 rounded border relative">
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="absolute top-2 right-2 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
+            aria-label={`Remove ${selectedAlgo.name}`}
+          >
+            &#x2715;
+          </button>
           <h3 className="font-medium mb-2">{selectedAlgo.name}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(selectedAlgo.params).map(([key, value]) => (
