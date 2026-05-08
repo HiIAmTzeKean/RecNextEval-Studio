@@ -17,6 +17,7 @@ class CreateStreamResponse(BaseModel):
 
 
 class AlgorithmWithParams(BaseModel):
+    id: int | None = None
     name: str
     params: dict = {}
 

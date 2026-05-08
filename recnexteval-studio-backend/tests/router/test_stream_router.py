@@ -67,13 +67,12 @@ class TestCreateStream:
         assert resp.status_code == 400
 
     def test_duplicate_name_is_rejected(self, client):
-        """The endpoint does not handle IntegrityError, so a duplicate name raises at the DB layer."""
         name = f"unique-{uuid.uuid4().hex}"
         r1 = client.post(f"{_PREFIX}/create_stream", json=self._payload(name))
-        assert r1.status_code == 200  # first creation succeeds
+        assert r1.status_code == 200
 
-        with pytest.raises(Exception):  # IntegrityError propagates (no duplicate guard in router)
-            client.post(f"{_PREFIX}/create_stream", json=self._payload(name))
+        r2 = client.post(f"{_PREFIX}/create_stream", json=self._payload(name))
+        assert r2.status_code == 409
 
     def test_missing_required_field_returns_422(self, client):
         payload = self._payload()
@@ -187,6 +186,66 @@ class TestAddAlgorithms:
             json={"algorithms": [{"name": _REGISTERED_ALGO, "params": {}}]},
         )
         assert resp.json()["status"] == "ready"
+
+    def test_update_by_id_updates_params_without_inserting_new_row(
+        self, client, mocker, router_stream_job, session_factory
+    ):
+        _mock_registry(mocker)
+        job_id = router_stream_job(has_algorithms=True)
+
+        sess = session_factory()
+        from recnexteval_studio_backend.db.schema import StreamAlgorithm
+        algo = sess.query(StreamAlgorithm).filter_by(stream_job_id=job_id).first()
+        algo_id = algo.id
+        sess.close()
+
+        resp = client.post(
+            f"{_PREFIX}/{job_id}/add_algorithms",
+            json={"algorithms": [{"id": algo_id, "name": _REGISTERED_ALGO, "params": {"num_factors": 50}}]},
+        )
+        assert resp.status_code == 200
+
+        sess = session_factory()
+        rows = sess.query(StreamAlgorithm).filter_by(stream_job_id=job_id).all()
+        sess.close()
+        assert len(rows) == 1
+        import json as _json
+        assert _json.loads(rows[0].parameters)["num_factors"] == 50
+
+    def test_two_no_id_entries_with_same_name_creates_two_distinct_rows(
+        self, client, mocker, router_stream_job, session_factory
+    ):
+        _mock_registry(mocker)
+        job_id = router_stream_job()
+
+        resp = client.post(
+            f"{_PREFIX}/{job_id}/add_algorithms",
+            json={"algorithms": [
+                {"name": _REGISTERED_ALGO, "params": {"k": 5}},
+                {"name": _REGISTERED_ALGO, "params": {"k": 10}},
+            ]},
+        )
+        assert resp.status_code == 200
+
+        sess = session_factory()
+        from recnexteval_studio_backend.db.schema import StreamAlgorithm
+        rows = sess.query(StreamAlgorithm).filter_by(stream_job_id=job_id).all()
+        uuids = [r.algorithm_uuid for r in rows]
+        sess.close()
+        assert len(rows) == 2
+        assert uuids[0] != uuids[1]
+
+    def test_update_with_id_not_belonging_to_stream_returns_404(
+        self, client, mocker, router_stream_job
+    ):
+        _mock_registry(mocker)
+        job_id = router_stream_job()
+
+        resp = client.post(
+            f"{_PREFIX}/{job_id}/add_algorithms",
+            json={"algorithms": [{"id": 999999, "name": _REGISTERED_ALGO, "params": {}}]},
+        )
+        assert resp.status_code == 404
 
 
 # ── DELETE /{stream_job_id} ───────────────────────────────────────────────────

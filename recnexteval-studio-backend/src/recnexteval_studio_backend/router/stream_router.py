@@ -1,6 +1,7 @@
 import json
 import logging as logger
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 
 import recnexteval.utils
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -202,20 +203,28 @@ def create_stream_router() -> APIRouter:
                     detail=f"Algorithm {algo.name} not found in recnexteval registry",
                 )
 
-        # Upsert StreamAlgorithm entries
+        # Upsert StreamAlgorithm entries: update by id if provided, else insert new
         for algo in request.algorithms:
-            existing = db.query(StreamAlgorithm).filter(
-                StreamAlgorithm.stream_job_id == stream_job_id,
-                StreamAlgorithm.algorithm_name == algo.name,
-            ).first()
-            if existing:
+            if algo.id is not None:
+                existing = db.query(StreamAlgorithm).filter(
+                    StreamAlgorithm.id == algo.id,
+                    StreamAlgorithm.stream_job_id == stream_job_id,
+                ).first()
+                if not existing:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Algorithm with id {algo.id} not found in stream job {stream_job_id}",
+                    )
                 existing.parameters = json.dumps(algo.params)
             else:
                 stream_algorithm = StreamAlgorithm(
                     stream_job_id=stream_job_id,
                     algorithm_name=algo.name,
                     parameters=json.dumps(algo.params),
-                    algorithm_uuid=recnexteval.utils.generate_algorithm_uuid(algo.name),
+                    algorithm_uuid=uuid.uuid5(
+                        uuid.NAMESPACE_OID,
+                        f"{algo.name}:{datetime.now(timezone.utc).isoformat()}",
+                    ),
                 )
                 db.add(stream_algorithm)
 
