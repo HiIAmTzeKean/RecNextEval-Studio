@@ -168,6 +168,7 @@ def create_stream_router() -> APIRouter:
                     "created_at": job.created_at.isoformat(),
                     "started_at": job.started_at.isoformat() if job.started_at else None,
                     "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+                    "error_message": job.error_message,
                     "algorithms": algorithms,
                 }
             )
