@@ -20,6 +20,7 @@ export interface Algorithm {
 
 export interface SelectedAlgorithm {
   id?: number
+  clientKey: string
   name: string
   params: Record<string, any>
 }

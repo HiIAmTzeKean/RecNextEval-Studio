@@ -130,6 +130,12 @@ const EvaluationJobItem: React.FC<EvaluationJobItemProps> = ({ job, running, onR
             <div className="text-gray-900 dark:text-white">{formatDate(job.completed_at)}</div>
           </div>
         </div>
+        {job.status === 'failed' && job.error_message && (
+          <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm">
+            <span className="font-medium text-red-700 dark:text-red-400">Error:</span>
+            <p className="mt-1 text-red-600 dark:text-red-300 font-mono break-all">{job.error_message}</p>
+          </div>
+        )}
       </div>
 
       {job.algorithms.length > 0 && (

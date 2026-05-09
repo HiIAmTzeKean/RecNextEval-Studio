@@ -10,5 +10,6 @@ export interface StreamJob {
   created_at: string
   started_at?: string
   completed_at?: string
+  error_message?: string
   algorithms: any[]
 }

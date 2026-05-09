@@ -1,6 +1,7 @@
 import json
 import logging as logger
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 
 import recnexteval.utils
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -41,6 +42,14 @@ def create_stream_router() -> APIRouter:
             timestamp_split_start = datetime.fromisoformat(request.timestamp_split_start.replace("Z", "+00:00"))
         except ValueError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid timestamp format")
+
+        # Check for duplicate job name
+        existing_job = db.query(StreamJob).filter(StreamJob.name == request.name).first()
+        if existing_job:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"A stream job with the name '{request.name}' already exists. Please choose a different name.",
+            )
 
         # Create stream job
         stream_job = StreamJob(
@@ -159,6 +168,7 @@ def create_stream_router() -> APIRouter:
                     "created_at": job.created_at.isoformat(),
                     "started_at": job.started_at.isoformat() if job.started_at else None,
                     "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+                    "error_message": job.error_message,
                     "algorithms": algorithms,
                 }
             )
@@ -194,15 +204,30 @@ def create_stream_router() -> APIRouter:
                     detail=f"Algorithm {algo.name} not found in recnexteval registry",
                 )
 
-        # Create StreamAlgorithm entries
+        # Upsert StreamAlgorithm entries: update by id if provided, else insert new
         for algo in request.algorithms:
-            stream_algorithm = StreamAlgorithm(
-                stream_job_id=stream_job_id,
-                algorithm_name=algo.name,
-                parameters=json.dumps(algo.params),
-                algorithm_uuid=recnexteval.utils.generate_algorithm_uuid(algo.name),
-            )
-            db.add(stream_algorithm)
+            if algo.id is not None:
+                existing = db.query(StreamAlgorithm).filter(
+                    StreamAlgorithm.id == algo.id,
+                    StreamAlgorithm.stream_job_id == stream_job_id,
+                ).first()
+                if not existing:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Algorithm with id {algo.id} not found in stream job {stream_job_id}",
+                    )
+                existing.parameters = json.dumps(algo.params)
+            else:
+                stream_algorithm = StreamAlgorithm(
+                    stream_job_id=stream_job_id,
+                    algorithm_name=algo.name,
+                    parameters=json.dumps(algo.params),
+                    algorithm_uuid=uuid.uuid5(
+                        uuid.NAMESPACE_OID,
+                        f"{algo.name}:{datetime.now(timezone.utc).isoformat()}",
+                    ),
+                )
+                db.add(stream_algorithm)
 
         db.commit()
 

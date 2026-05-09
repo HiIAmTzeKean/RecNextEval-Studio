@@ -25,6 +25,13 @@ export const useEvaluationJobs = () => {
     fetchStreamJobs()
   }, [])
 
+  useEffect(() => {
+    const hasRunning = streamJobs.some(j => j.status === 'running')
+    if (!hasRunning) return
+    const id = setInterval(fetchStreamJobs, 3000)
+    return () => clearInterval(id)
+  }, [streamJobs])
+
   const runJob = async (job: StreamJob) => {
     setRunning(true)
     try {

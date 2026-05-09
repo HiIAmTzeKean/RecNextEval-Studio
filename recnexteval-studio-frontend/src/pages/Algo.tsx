@@ -25,15 +25,15 @@ const Algo: React.FC = () => {
   const [loading, setLoading] = useState(false)
 
   const handleAlgorithmToggle = async (algorithmId: string) => {
-    const isSelected = selectedAlgorithms.some(algo => algo.name === algorithmId)
-    if (isSelected) {
-      // Remove
-      setSelectedAlgorithms(prev => prev.filter(algo => algo.name !== algorithmId))
-    } else {
-      // Add, fetch params
-      const params = await fetchAlgorithmParams(algorithmId)
-      setSelectedAlgorithms(prev => [...prev, { name: algorithmId, params, id: undefined }])
-    }
+    const params = await fetchAlgorithmParams(algorithmId)
+    setSelectedAlgorithms(prev => [
+      ...prev,
+      { name: algorithmId, params, id: undefined, clientKey: crypto.randomUUID() },
+    ])
+  }
+
+  const handleRemoveAlgorithm = (index: number) => {
+    setSelectedAlgorithms(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleParamChange = (index: number, key: string, value: any) => {
@@ -88,6 +88,7 @@ const Algo: React.FC = () => {
         <AlgorithmParameters
           selectedAlgorithms={selectedAlgorithms}
           onParamChange={handleParamChange}
+          onRemove={handleRemoveAlgorithm}
         />
       )}
 

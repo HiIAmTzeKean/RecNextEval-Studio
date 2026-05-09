@@ -20,6 +20,9 @@ help:
 	@echo "  make down              -> stop and remove services"
 
 up:
+	$(DC) up
+
+rebuild:
 	$(DC) up --build
 
 up-dev:
